@@ -6,7 +6,10 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "android-apk-debug": "cd android && ./gradlew assembleDebug",
+    "android-apk-release": "cd android && ./gradlew assembleRelease",
+    "build-apks": "npm run android-apk-debug && npm run android-apk-release"
   },
   "private": true,
   "dependencies": {
