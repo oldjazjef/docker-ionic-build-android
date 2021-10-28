@@ -36,10 +36,9 @@ RUN yes | /android-sdk/tools/bin/sdkmanager --licenses --sdk_root=${ANDROID_HOME
 # copy project source including node_modules because capacitor / cordova depend on it for building
 COPY ./ android-build
 
-# build debug apk
-RUN cd android-build/android && ./gradlew assembleDebug
-# build release apk
-RUN cd android-build/android && ./gradlew assembleRelease
+# build apks
+RUN cd /android-build
+RUN npm run build-apks
 
 # TODO
 # parameterize app path / android path
