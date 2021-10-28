@@ -8,7 +8,7 @@ RUN apt -y install gradle
 
 # deps for building app within container
 # RUN apt -y install nodejs
-# RUN apt -y install npm
+RUN apt -y install npm
 # RUN npm install -g @ionic/cli
 # RUN npm i -g @capacitor/cli
 # RUN npm i -g @capacitor/android
