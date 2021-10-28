@@ -73,3 +73,13 @@ RUN cd android-build/projects/client/android && ./gradlew assembleDebug
 RUN cd android-build/projects/client/android && ./gradlew assembleRelease
 
 ```
+
+## Usage
+
+### gitlab
+... coming soon ..
+
+
+## Upcoming changes
+- Parameterize container
+- APK signing
