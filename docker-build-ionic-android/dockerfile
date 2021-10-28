@@ -37,6 +37,10 @@ RUN yes | /android-sdk/tools/bin/sdkmanager --licenses --sdk_root=${ANDROID_HOME
 COPY ./ android-build
 
 # build debug apk
-RUN cd android-build/projects/client/android && ./gradlew assembleDebug
+RUN cd android-build/android && ./gradlew assembleDebug
 # build release apk
-RUN cd android-build/projects/client/android && ./gradlew assembleRelease
+RUN cd android-build/android && ./gradlew assembleRelease
+
+# TODO
+# parameterize app path / android path
+# parameterize signing & keystore files
