@@ -80,6 +80,27 @@ RUN cd /project && npm run build-apks
 
 ```
 
+#### package.json scripts
+The scripts from package.json are called from within the container image to build the capacitor android project and generate apks for debug and release.
+
+```json
+"scripts": {
+  "ng": "ng",
+  "start": "ng serve",
+  "watch": "ng build --watch --configuration development",
+  "test": "ng test",
+  "build": "ionic build --project=docker-build-ionic-android",
+  "add-android": "ionic capacitor add android",
+  "setup-android": "npm run build && npm run add-android",
+  "android-apk-debug": "cd android && chmod +x gradlew && ./gradlew assembleDebug",
+  "android-apk-release": "cd android && chmod +x gradlew && ./gradlew assembleRelease",
+  "android-apk-debug-windows": "cd android && gradlew assembleDebug",
+  "android-apk-release-windows": "cd android && gradlew assembleRelease",
+  "build-apks": "npm run android-apk-debug && npm run android-apk-release",
+  "install-dependencies": "npm i"
+}
+```
+
 ## Usage
 
 ### gitlab
