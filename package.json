@@ -1,0 +1,19 @@
+{
+  "name": "root",
+  "private": true,
+  "scripts": {
+    "setup": "npm i lerna && npm i rimraf",
+    "cleanup": "rimraf ./**/node_modules",
+    "install-dependencies": "lerna run install-dependencies i",
+    "build": "lerna run build --concurrency=1 --stream",
+    "test": "lerna run test --concurrency=1 --stream"
+  },
+  "workspaces": [
+    "docker-build-ionic-android",
+    "docker-build-ionic-android/projects/*"
+  ],
+  "devDependencies": {
+    "lerna": "^4.0.0",
+    "rimraf": "^3.0.2"
+  }
+}

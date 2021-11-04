@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "./docker-build-ionic-android",
+			"name": "docker-build-ionic-android"
+		},
+		{
+			"path": "./",
+			"name": "setup"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"docker-build-ionic-android": true,
+			"**/.gitmodules": true,
+			//"**/.gitignore": true
+		},
+		"workbench.iconTheme": "material-icon-theme",
+		"workbench.view.alwaysShowHeaderActions": true,
+		"breadcrumbs.enabled": true
+	}
+}

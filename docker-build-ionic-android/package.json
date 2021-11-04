@@ -4,12 +4,17 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "android-apk-debug": "cd android && ./gradlew assembleDebug",
-    "android-apk-release": "cd android && ./gradlew assembleRelease",
-    "build-apks": "npm run android-apk-debug && npm run android-apk-release"
+    "build": "ionic build --project=docker-build-ionic-android",
+    "add-android": "ionic capacitor add android",
+    "setup-android": "npm run build && npm run add-android",
+    "android-apk-debug": "cd android && chmod +x gradlew && ./gradlew assembleDebug",
+    "android-apk-release": "cd android && chmod +x gradlew && ./gradlew assembleRelease",
+    "android-apk-debug-windows": "cd android && gradlew assembleDebug",
+    "android-apk-release-windows": "cd android && gradlew assembleRelease",
+    "build-apks": "npm run android-apk-debug && npm run android-apk-release",
+    "install-dependencies": "npm i"
   },
   "private": true,
   "dependencies": {
@@ -21,6 +26,12 @@
     "@angular/platform-browser": "~12.2.0",
     "@angular/platform-browser-dynamic": "~12.2.0",
     "@angular/router": "~12.2.0",
+    "@capacitor/android": "3.3.0",
+    "@capacitor/app": "1.0.6",
+    "@capacitor/core": "3.3.0",
+    "@capacitor/haptics": "1.1.3",
+    "@capacitor/keyboard": "1.1.3",
+    "@capacitor/status-bar": "1.0.6",
     "rxjs": "~6.6.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"
@@ -29,6 +40,7 @@
     "@angular-devkit/build-angular": "~12.2.11",
     "@angular/cli": "~12.2.11",
     "@angular/compiler-cli": "~12.2.0",
+    "@capacitor/cli": "3.3.0",
     "@types/jasmine": "~3.8.0",
     "@types/node": "^12.11.1",
     "jasmine-core": "~3.8.0",

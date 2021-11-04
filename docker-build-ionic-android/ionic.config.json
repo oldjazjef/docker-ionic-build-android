@@ -1,5 +1,7 @@
 {
-  "name": "docker-ionic-build-android",
-  "integrations": {},
+  "name": "docker-build-ionic-android",
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "angular"
 }

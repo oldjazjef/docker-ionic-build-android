@@ -1,0 +1,9 @@
+{
+  "packages": [
+    "docker-build-ionic-android/*",
+    "docker-build-ionic-android/projects/*/*"
+  ],
+  "version": "independent",
+  "npmClient": "npm",
+  "useWorkspaces": true
+}

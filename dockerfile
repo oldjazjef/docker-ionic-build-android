@@ -1,5 +1,9 @@
 FROM openjdk:11
 
+# DO NOT FORGET TO DEFINE ENVS APP_FOLDER AND APK_PATH -- using default values
+ENV PROJECT_PATH "app-name"
+ENV APK_PATH "yourpathto/android/app/build/outputs/apk"
+
 # install common deps
 RUN apt update
 RUN apt -y install wget
@@ -34,11 +38,9 @@ RUN /android-sdk/tools/bin/sdkmanager --update --sdk_root=${ANDROID_HOME}
 RUN yes | /android-sdk/tools/bin/sdkmanager --licenses --sdk_root=${ANDROID_HOME}
 
 # copy project source including node_modules because capacitor / cordova depend on it for building
-COPY ./ android-build
+COPY ./$PROJECT_PATH /project
 
-# build apks
-RUN cd /android-build
-RUN npm run build-apks
+RUN cd /project && npm run build-apks
 
 # TODO
 # parameterize app path / android path

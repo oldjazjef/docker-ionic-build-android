@@ -1,0 +1,57 @@
+image: docker:stable
+
+variables:
+  DOCKER_DRIVER: overlay2
+  APP_CONTAINER_NAME: ionic-apk-builder
+  PROJECT_PATH: docker-build-ionic-android
+  APK_PATH: /project/android/app/build/outputs/apk
+  MOUNT_VOLUME: /builds/$CI_PROJECT_PATH$PROJECT_NAME/$PROJECT_PATH/apks
+
+stages:
+  - build
+  - image_create
+
+build_app:
+  stage: build
+  image: trion/ng-cli
+  variables:
+    GIT_STRATEGY: clone
+    GIT_SUBMODULE_STRATEGY: recursive
+  script:
+    - ls
+    - npm run setup
+    - npm run install-dependencies,
+    - lerna run build
+    - lerna run add-android
+    - lerna run build-apks
+  artifacts:
+    expire_in: 1 day 
+    paths:
+      - /builds/$CI_PROJECT_PATH$PROJECT_NAME/dockerfile
+      - /builds/$CI_PROJECT_PATH$PROJECT_NAME/$PROJECT_PATH/package.json
+      - /builds/$CI_PROJECT_PATH$PROJECT_NAME/$PROJECT_PATH/dist
+      - /builds/$CI_PROJECT_PATH$PROJECT_NAME/$PROJECT_PATH/package.json
+      - /builds/$CI_PROJECT_PATH$PROJECT_NAME/$PROJECT_PATH/android
+      - /builds/$CI_PROJECT_PATH$PROJECT_NAME/$PROJECT_PATH/node_modules/@capacitor
+  when: manual
+
+image_create_ionic_builder:
+  stage: image_create
+  variables:
+    GIT_STRATEGY: none
+    GIT_SUBMODULE_STRATEGY: none
+  services:
+    - docker:dind
+  script:
+    - ls
+    - mkdir $MOUNT_VOLUME
+    - docker build . -t $CI_REGISTRY_IMAGE/$APP_CONTAINER_NAME:$CI_COMMIT_SHORT_SHA
+    - docker run -td --name $APP_CONTAINER_NAME -e "PROJECT_PATH=$PROJECT_PATH" -e "APK_PATH=$APK_PATH" $CI_REGISTRY_IMAGE/$APP_CONTAINER_NAME:$CI_COMMIT_SHORT_SHA
+    - docker cp $APP_CONTAINER_NAME:/$APK_PATH $MOUNT_VOLUME
+    - docker stop $APP_CONTAINER_NAME
+    - docker rm $APP_CONTAINER_NAME
+  artifacts:
+    expire_in: 1 day 
+    paths:
+      - $MOUNT_VOLUME
+  when: manual
