@@ -31,6 +31,10 @@ project(':capacitor-android').projectDir = new File('../../../node_modules/@capa
 ```dockerfile
 FROM openjdk:11
 
+# DO NOT FORGET TO DEFINE ENVS APP_FOLDER AND APK_PATH -- using default values
+ENV PROJECT_PATH "app-name"
+ENV APK_PATH "yourpathto/android/app/build/outputs/apk"
+
 # install common deps
 RUN apt update
 RUN apt -y install wget
@@ -39,7 +43,7 @@ RUN apt -y install gradle
 
 # deps for building app within container
 # RUN apt -y install nodejs
-# RUN apt -y install npm
+RUN apt -y install npm
 # RUN npm install -g @ionic/cli
 # RUN npm i -g @capacitor/cli
 # RUN npm i -g @capacitor/android
@@ -65,12 +69,14 @@ RUN /android-sdk/tools/bin/sdkmanager --update --sdk_root=${ANDROID_HOME}
 RUN yes | /android-sdk/tools/bin/sdkmanager --licenses --sdk_root=${ANDROID_HOME}
 
 # copy project source including node_modules because capacitor / cordova depend on it for building
-COPY ./ android-build
+COPY ./$PROJECT_PATH /project
 
-# build debug apk
-RUN cd android-build/projects/client/android && ./gradlew assembleDebug
-# build release apk
-RUN cd android-build/projects/client/android && ./gradlew assembleRelease
+RUN cd /project && npm run build-apks
+
+# TODO
+# parameterize app path / android path
+# parameterize signing & keystore files
+
 
 ```
 
@@ -81,5 +87,4 @@ RUN cd android-build/projects/client/android && ./gradlew assembleRelease
 
 
 ## Upcoming changes
-- Parameterize container
 - APK signing
