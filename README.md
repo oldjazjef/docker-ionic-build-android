@@ -9,7 +9,7 @@ If you find something missing or broken, please report an issue or even better f
 
 
 ### How it works
-The docker images downloads the currently latest commandline tools from google.
+The docker images downloads the currently latest command line tools from google.
 Sets up all the important environment variables to use the tools.
 The ionic build & capacitor android platform build happens outside of the docker image.
 
@@ -29,24 +29,40 @@ project(':capacitor-android').projectDir = new File('../../../node_modules/@capa
 #### dockerfile
 
 ```dockerfile
-FROM openjdk:11
+FROM openjdk:11-jdk-oraclelinux7
 
-# DO NOT FORGET TO DEFINE ENVS APP_FOLDER AND APK_PATH -- using default values
-ENV PROJECT_PATH "app-name"
-ENV APK_PATH "yourpathto/android/app/build/outputs/apk"
+ARG CACHEBUSTER=4
+ARG PROJECT_PATH="app-name"
+ARG ANDROID_PROJECT_PATH="projects/client/android"
+ARG APK_PATH="projects/client/android/app/build/outputs/apk"
+ARG APK_ALIAS="keystore alias"
+ARG APP_KEYSTORE="invalid keystore value"
+ARG APP_KEYSTORE_PW=""
+ARG APP_KEYSTORE_KEY_PW=""
+ARG PROJECT_FOLDER="/"
+
+# DO NOT FORGET TO DEFINE ENVS APP_FOLDER AND ENV_APK_PATH
+ENV ENV_PROJECT_PATH=$PROJECT_PATH
+ENV ENV_PROJECT_FOLDER=$PROJECT_FOLDER
+ENV ENV_ANDROID_PROJECT_PATH=$ANDROID_PROJECT_PATH
+ENV ENV_APK_PATH=$APK_PATH
+ENV ENV_APK_ALIAS=$APK_ALIAS
+ENV ENV_APP_KEYSTORE=$APP_KEYSTORE
+ENV ENV_APP_KEYSTORE_PW=$APP_KEYSTORE_PW
+ENV ENV_APP_KEYSTORE_KEY_PW=$APP_KEYSTORE_KEY_PW 
+ENV ENV_BUILD_TOOLS_VERSION="30.0.2"
+
 
 # install common deps
-RUN apt update
-RUN apt -y install wget
-RUN apt -y install unzip
-RUN apt -y install gradle
+RUN yum update
+RUN yum -y install wget
+RUN yum -y install unzip
 
-# deps for building app within container
-# RUN apt -y install nodejs
-RUN apt -y install npm
-# RUN npm install -g @ionic/cli
-# RUN npm i -g @capacitor/cli
-# RUN npm i -g @capacitor/android
+# install nodejs and npm
+RUN yum -y install curl
+RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash -
+RUN yum install -y nodejs
+RUN npm -v
 
 # download android sdk
 RUN mkdir android-sdk
@@ -56,56 +72,29 @@ RUN rm -rf commandlinetools-linux-6200805_latest
 
 # setup environment variables
 #java
-ENV JAVA_HOME /usr/local/openjdk-11
 ENV PATH $PATH:$JAVA_HOME/bin/
 # android and tools
-ENV ANDROID_HOME /android-sdk/
+ENV ANDROID_HOME /android-sdk
 ENV ANDROID_SDK_ROOT $ANDROID_HOME
 ENV PATH $PATH:$ANDROID_SDK_ROOT/tools/bin
 ENV PATH $PATH:$ANDROID_SDK_ROOT/platform-tools/bin
 
 # setup sdkmanager
-RUN /android-sdk/tools/bin/sdkmanager --update --sdk_root=${ANDROID_HOME}
+RUN /android-sdk/tools/bin/sdkmanager --install "build-tools;${ENV_BUILD_TOOLS_VERSION}" --sdk_root=${ANDROID_HOME}
 RUN yes | /android-sdk/tools/bin/sdkmanager --licenses --sdk_root=${ANDROID_HOME}
 
+# zipalign
+ENV PATH $PATH:$ANDROID_HOME/build-tools/$ENV_BUILD_TOOLS_VERSION
+
+
 # copy project source including node_modules because capacitor / cordova depend on it for building
-COPY ./$PROJECT_PATH /project
+COPY ./$ENV_PROJECT_PATH $ENV_PROJECT_FOLDER
 
-RUN cd /project && npm run build-apks
-
-# TODO
-# parameterize app path / android path
-# parameterize signing & keystore files
-
+# build apks
+RUN cd $ENV_PROJECT_FOLDER/$ENV_ANDROID_PROJECT_PATH && ./gradlew assembleDebug
+RUN cd $ENV_PROJECT_FOLDER/$ENV_ANDROID_PROJECT_PATH && ./gradlew assembleRelease
 
 ```
-
-#### package.json scripts
-The scripts from package.json are called from within the container image to build the capacitor android project and generate apks for debug and release.
-
-```json
-"scripts": {
-  "ng": "ng",
-  "start": "ng serve",
-  "watch": "ng build --watch --configuration development",
-  "test": "ng test",
-  "build": "ionic build --project=docker-build-ionic-android",
-  "add-android": "ionic capacitor add android",
-  "setup-android": "npm run build && npm run add-android",
-  "android-apk-debug": "cd android && chmod +x gradlew && ./gradlew assembleDebug",
-  "android-apk-release": "cd android && chmod +x gradlew && ./gradlew assembleRelease",
-  "android-apk-debug-windows": "cd android && gradlew assembleDebug",
-  "android-apk-release-windows": "cd android && gradlew assembleRelease",
-  "build-apks": "npm run android-apk-debug && npm run android-apk-release",
-  "install-dependencies": "npm i"
-}
-```
-
-## Usage
-
-### gitlab
-... coming soon ..
-
 
 ## Upcoming changes
 - APK signing
